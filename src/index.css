@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@plugin "daisyui/theme" {
+  name: "mytheme";
+  default: true;
+  color-scheme: light;
+
+  --color-base-100: oklch(98.5% 0.008 85); /* Background Cream */
+  --color-base-content: oklch(25% 0.02 120); /* Text Gelap */
+
+  --color-primary: oklch(36% 0.062 165); /* Hijau Tua Logo */
+  --color-primary-content: oklch(98% 0.01 165);
+
+  --color-secondary: oklch(72% 0.12 82); /* Emas Logo */
+  --color-secondary-content: oklch(20% 0.02 82);
+}
