@@ -18,27 +18,49 @@ const cartSlice = createSlice({
     addItem: (state, action) => {
       const { product } = action.payload;
       const item = state.CartItems.find((i) => i.cartId === product.cartId);
-      if (item) {
-        item.amount += product.amount;
-      } else {
-        state.CartItems.push(product);
+
+      const currentAmount = item ? item.amount : 0;
+      const allowed = Math.min(product.amount, product.stock - currentAmount);
+
+      if (allowed < 1) {
+        toast.error("Stok tidak mencukupi");
+        return;
       }
 
-      state.numItemsInCart += product.amount;
-      state.cartTotal += product.price * product.amount;
+      if (item) {
+        item.amount += allowed;
+        item.stock = product.stock;
+      } else {
+        state.CartItems.push({ ...product, amount: allowed });
+      }
+
+      state.numItemsInCart += allowed;
+      state.cartTotal += product.price * allowed;
 
       localStorage.setItem("cart", JSON.stringify(state));
 
-      toast.success("Produk ditambahkan");
+      if (allowed < product.amount) {
+        toast.warning(`Hanya ${allowed} ditambahkan, stok maksimal tercapai`);
+      } else {
+        toast.success("Produk ditambahkan");
+      }
     },
     editItem: (state, action) => {
       const { cartId, amount } = action.payload;
       const itemProduct = state.CartItems.find((i) => i.cartId === cartId);
+      if (!itemProduct) return;
 
-      state.numItemsInCart += amount - itemProduct.amount;
-      state.cartTotal += itemProduct.price * (amount - itemProduct.amount);
-      itemProduct.amount = amount;
+      const newAmount = Math.min(amount, itemProduct.stock);
+      const diff = newAmount - itemProduct.amount;
+
+      state.numItemsInCart += diff;
+      state.cartTotal += itemProduct.price * diff;
+      itemProduct.amount = newAmount;
       localStorage.setItem("cart", JSON.stringify(state));
+    },
+    clearCartItem: (state) => {
+      localStorage.setItem("cart", JSON.stringify(defaultValue));
+      return defaultValue;
     },
     removeItem: (state, action) => {
       const { cartId } = action.payload;
@@ -53,5 +75,6 @@ const cartSlice = createSlice({
   },
 });
 
-export const { addItem, editItem, removeItem } = cartSlice.actions;
+export const { addItem, editItem, clearCartItem, removeItem } =
+  cartSlice.actions;
 export default cartSlice.reducer;

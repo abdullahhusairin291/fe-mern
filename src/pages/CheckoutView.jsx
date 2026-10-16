@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import CartTotal from "../components/CartTotal";
 import FormInput from "../components/Form/FormInput";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import customApi from "../api";
 import { toast } from "react-toastify";
+import { clearCartItem } from "../features/cartSlice";
+import { redirect, useNavigate } from "react-router-dom";
 
 const insertSnapScript = () => {
   return new Promise((resolve) => {
@@ -18,9 +20,20 @@ const insertSnapScript = () => {
   });
 };
 
+export const loader = (storage) => () => {
+  const user = storage.getState().userState.user;
+  if (!user) {
+    toast.warn("Login untuk mengakses halaman ini");
+    return redirect("/login");
+  }
+  return null;
+};
+
 const CheckoutView = () => {
   const user = useSelector((state) => state.userState.user);
   const cart = useSelector((state) => state.cartState.CartItems);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     insertSnapScript();
@@ -50,8 +63,8 @@ const CheckoutView = () => {
 
       window.snap.pay(snapToken.token, {
         onSuccess: function (result) {
-          console.log(result);
-          alert("Payment success! Transaction ID: " + result.transaction_id);
+          dispatch(clearCartItem());
+          navigate("/orders");
         },
         onPending: function (result) {
           console.log(result);
@@ -66,7 +79,8 @@ const CheckoutView = () => {
       });
       toast.success("Order created successfully!");
     } catch (error) {
-      console.error("Error during checkout:", error);
+      const errorMassage = error?.response?.data?.message;
+      toast.error(errorMassage);
     }
   };
 

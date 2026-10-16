@@ -5,6 +5,7 @@ import { FaBarsStaggered } from "react-icons/fa6";
 import { useSelector, useDispatch } from "react-redux";
 import customApi from "../api";
 import { logoutUser } from "../features/userSlice";
+import { clearCartItem } from "../features/cartSlice";
 
 const Nav = () => {
   const user = useSelector((state) => state.userState.user);
@@ -13,9 +14,16 @@ const Nav = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    customApi.get("/auth/logout");
-    dispatch(logoutUser());
-    navigate("/");
+    try {
+      customApi.get("/auth/logout");
+      dispatch(logoutUser());
+      dispatch(clearCartItem());
+      navigate("/");
+    } catch (error) {
+      dispatch(logoutUser());
+      dispatch(clearCartItem());
+      navigate("/");
+    }
   };
 
   return (

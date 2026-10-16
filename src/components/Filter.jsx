@@ -5,7 +5,7 @@ import FormSelect from "./Form/FormSelect";
 const Filter = () => {
   const { params } = useLoaderData();
   const { name, category } = params;
-  const categories = ["200 ml", "250 ml", "1 Liter"];
+  const categories = ["110 ml", "200 ml", "250 ml", "500 ml", "1 liter"];
 
   return (
     <Form

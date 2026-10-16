@@ -1,8 +1,9 @@
-import { useLoaderData } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import customApi from "../api";
 import CardProduct from "../components/CardProduct";
 import Filter from "../components/Filter";
 import Pagination from "../components/Pagination";
+import { useSelector } from "react-redux";
 
 export const loader = async ({ request }) => {
   const params = Object.fromEntries([
@@ -17,11 +18,19 @@ export const loader = async ({ request }) => {
 };
 
 const ProductView = () => {
+  const user = useSelector((state) => state.userState.user);
   const { products, pagination } = useLoaderData();
 
   return (
     <div className="max-w-6xl mx-auto p-4">
       <Filter />
+      {user && user.role === "owner" && (
+        <div className="flex justify-end">
+          <Link to="/products/create" className="btn btn-secondary">
+            Tambah Product
+          </Link>
+        </div>
+      )}
       <div className="flex justify-between items-center border-b-2 border-primary py-2 mb-5">
         <h2 className="text-2xl font-bold">All Products</h2>
         <h3 className="text-primary font-bold text-right">
@@ -34,7 +43,9 @@ const ProductView = () => {
             Produk tidak ditemukan
           </p>
         ) : (
-          products.map((item) => <CardProduct key={item._id} item={item} />)
+          products.map((item) => (
+            <CardProduct key={item._id} item={item} user={user} />
+          ))
         )}
       </div>
       <Pagination />

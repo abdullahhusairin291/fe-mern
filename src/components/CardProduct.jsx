@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { priceFormatter } from "../utils";
+import { FaTrash, FaPencilAlt } from "react-icons/fa";
+import customApi from "../api";
+import { toast } from "react-toastify";
+import { useRevalidator } from "react-router-dom";
 
-const CardProduct = ({ item }) => {
+const CardProduct = ({ item, user }) => {
+  const { revalidate } = useRevalidator();
   return (
     <div className="card bg-base-300 shadow-sm" key={item._id}>
       <figure className="h-48 overflow-hidden bg-base-200">
@@ -12,6 +17,21 @@ const CardProduct = ({ item }) => {
         />
       </figure>
       <div className="card-body p-4 gap-1">
+        {user && user.role === "owner" && (
+          <div className="flex justify-end gap-x-3">
+            <FaTrash
+              onClick={async () => {
+                await customApi.delete(`/product/${item._id}`);
+                toast.info("Produk berhasil dihapus");
+                revalidate();
+              }}
+              className="text-red-500 cursor-pointer"
+            />
+            <Link to={`/product/${item._id}/edit`}>
+              <FaPencilAlt className="text-info cursor-pointer" />
+            </Link>
+          </div>
+        )}
         <h2 className="card-title text-base line-clamp-1">{item.name}</h2>
         <p className="text-sm font-semibold text-primary">
           {priceFormatter(item.price)}

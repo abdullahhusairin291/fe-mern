@@ -1,7 +1,7 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import customApi from "../api";
 import { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa6";
+import { FaArrowLeft, FaPlus } from "react-icons/fa6";
 import { generateSelectAmount, priceFormatter } from "../utils";
 import { useDispatch } from "react-redux";
 import { addItem } from "../features/cartSlice";
@@ -28,7 +28,11 @@ const DetailProduct = () => {
     amount,
   };
 
+  const isOutOfStock = !product?.stock || product.stock < 1;
+
   const handleCart = () => {
+    if (isOutOfStock) return;
+    if (amount > product.stock) return;
     dispatch(addItem({ product: productCart }));
   };
 
@@ -43,6 +47,10 @@ const DetailProduct = () => {
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-6">
+      <Link to="/products" className="btn btn-ghost btn-sm mb-4 gap-2">
+        <FaArrowLeft /> Back
+      </Link>
+
       <div className="card bg-base-100 shadow-sm sm:card-side">
         <figure className="w-full shrink-0 bg-base-200 p-6 sm:w-64 lg:w-72">
           <img
@@ -80,6 +88,7 @@ const DetailProduct = () => {
                 name="amount"
                 className="select select-bordered w-full"
                 onChange={handleAmount}
+                disabled={isOutOfStock}
               >
                 {generateSelectAmount(product.stock)}
               </select>
@@ -88,8 +97,9 @@ const DetailProduct = () => {
             <button
               className="btn btn-primary w-full sm:w-auto"
               onClick={handleCart}
+              disabled={isOutOfStock}
             >
-              <FaPlus /> Add to Cart
+              <FaPlus /> {isOutOfStock ? "Stok Habis" : "Add to Cart"}
             </button>
           </div>
         </div>
