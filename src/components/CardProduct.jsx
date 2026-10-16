@@ -27,7 +27,7 @@ const CardProduct = ({ item, user }) => {
               }}
               className="text-red-500 cursor-pointer"
             />
-            <Link to={`/product/${item._id}/edit`}>
+            <Link to={`/products/${item._id}/edit`}>
               <FaPencilAlt className="text-info cursor-pointer" />
             </Link>
           </div>
